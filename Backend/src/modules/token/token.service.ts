@@ -1,0 +1,89 @@
+import { db } from "../../shared/lib/db";
+import nodemailer from "nodemailer";
+
+export async function createToken({ purchaseId, items }: { purchaseId: string, items: any[] }) {
+  const purchase = await db.purchase.findUnique({
+    where: { id: purchaseId },
+    include: { user: true },
+  });
+
+  if (!purchase) {
+    throw new Error("Purchase not found");
+  }
+
+  const existingToken = await db.token.findUnique({
+    where: { purchaseId },
+  });
+
+  if (existingToken) {
+    return existingToken; // Avoid duplicate
+  }
+
+  const tokenNumber = `TK-${Date.now().toString().slice(-6)}`;
+
+  const email = purchase.user.email;
+
+  if (!email) {
+    throw new Error("User does not have an email");
+  }
+
+  const token = await db.token.create({
+    data: {
+      userId: purchase.userId,
+      purchaseId: purchase.id,
+      tokenNumber,
+      totalAmount: purchase.totalAmount,
+      items: JSON.stringify(items),
+      sentTo: email,
+      sentAt: new Date(),
+      emailSent: true,
+      smsSent: false,
+      status: "Pending",
+    },
+  });
+
+  // ✅ Send email
+await sendTokenEmail(purchase.user.email, tokenNumber, items, purchase.totalAmount);
+
+
+  return token;
+}
+
+async function sendTokenEmail(to: string, tokenNumber: string, items: any[], total: number) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "kprahul1143@gmail.com",         // 🔐 your Gmail
+      pass: "evqa zlee flqk kikc",           // 🔐 app-specific password
+    },
+  });
+
+const itemList = items
+  .map(item => {
+    const name = item.name || "Unnamed";
+    const qty = item.quantity || 0;
+    const unit = item.unitPrice || 0;
+    const total = qty * unit;
+    return `• ${name} x ${qty} @ ₹${unit} = ₹${total}`;
+  })
+  .join("<br>");
+
+console.log("EMAIL ITEMS:", items);
+
+  const mailOptions = {
+    from: "Smart Canteen <yourgmail@gmail.com>",
+    to,
+    subject: `🧾 Your Smart Canteen Token: ${tokenNumber}`,
+    html: `
+      <h2>✅ Order Confirmation</h2>
+      <p><strong>Token Number:</strong> ${tokenNumber}</p>
+      <p><strong>Total:</strong> ₹${total.toFixed(2)}</p>
+      <p><strong>Items:</strong><br>${itemList}</p>
+      <br />
+      <p>Thank you for ordering from Smart Canteen!</p>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+

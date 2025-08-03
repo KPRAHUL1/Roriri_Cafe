@@ -1,0 +1,208 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===================== ENUMS =====================
+enum UserType {
+  Student
+  Employee
+  Staff
+  Visitor
+}
+
+enum UserStatus {
+  Active
+  Inactive
+  Blocked
+}
+
+enum TransactionType {
+  Purchase
+  Recharge
+  Refund
+}
+
+enum PaymentMethod {
+  Cash
+  UPI
+  Card
+  BankTransfer
+}
+
+enum AdminRole {
+  Admin
+  Staff
+}
+
+enum TokenStatus {
+  Pending
+  Sent
+  Failed
+}
+
+// ===================== MODELS =====================
+
+model User {
+  id            String      @id @default(uuid()) @map("_id") @db.Uuid
+  userId        String      @unique
+  name          String
+  email         String      @unique
+  phone         String?
+  userType      UserType
+  status        UserStatus  @default(Active)
+  qrCode        String      @unique
+  qrCodeImage   String?
+  balance       Float       @default(0.00)
+  department    String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  lastUsed      DateTime?
+
+  transactions  Transaction[]
+  recharges     Recharge[]
+  purchases     Purchase[]
+  tokens        Token[]
+}
+
+model Product {
+  id            String      @id @default(uuid()) @map("_id") @db.Uuid
+  name          String      @unique
+  description   String?
+  price         Float
+  stock         Int         @default(0)
+  minStock      Int         @default(5)
+  imageUrl      String?
+  imagePath     String?
+  category      String?
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+
+  purchases     Purchase[]
+  stockLogs     StockLog[]
+}
+
+model Transaction {
+  id            String          @id @default(uuid()) @map("_id") @db.Uuid
+  userId        String          @db.Uuid
+  type          TransactionType
+  amount        Float
+  balanceBefore Float
+  balanceAfter  Float
+  description   String?
+  reference     String?
+  items         Json? 
+  createdAt     DateTime        @default(now())
+
+  user          User            @relation(fields: [userId], references: [id])
+  purchases     Purchase[]
+}
+
+model Purchase {
+  id            String      @id @default(uuid()) @map("_id") @db.Uuid
+  userId        String      @db.Uuid
+  productId     String      @db.Uuid
+  transactionId String      @db.Uuid
+  quantity      Int
+  unitPrice     Float
+  totalAmount   Float
+  createdAt     DateTime    @default(now())
+
+  user          User        @relation(fields: [userId], references: [id])
+  product       Product     @relation(fields: [productId], references: [id])
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  token         Token?
+}
+
+model Recharge {
+  id            String        @id @default(uuid()) @map("_id") @db.Uuid
+  userId        String        @db.Uuid
+  amount        Float
+  paymentMethod PaymentMethod
+  notes         String?
+  reference     String?
+  rechargedBy   String?       @db.Uuid
+  createdAt     DateTime      @default(now())
+
+  user          User          @relation(fields: [userId], references: [id])
+  admin         Admin?        @relation(fields: [rechargedBy], references: [id])
+}
+
+model Token {
+  id            String      @id @default(uuid()) @map("_id") @db.Uuid
+  userId        String      @db.Uuid
+  purchaseId    String      @unique @db.Uuid
+  tokenNumber   String      @unique
+  totalAmount   Float
+  items         String      // JSON stored as string, following your pattern
+  emailSent     Boolean     @default(false)
+  smsSent       Boolean     @default(false)
+  status        TokenStatus @default(Pending)
+  sentTo        String?
+  sentAt        DateTime?
+  errorMessage  String?
+  createdAt     DateTime    @default(now())
+
+  user          User        @relation(fields: [userId], references: [id])
+  purchase      Purchase    @relation(fields: [purchaseId], references: [id])
+}
+
+model Admin {
+  id            String      @id @default(uuid()) @map("_id") @db.Uuid
+  name          String
+  email         String      @unique
+  phone         String?
+  role          AdminRole   @default(Staff)
+  username      String      @unique
+  password      String
+  isActive      Boolean     @default(true)
+  lastLogin     DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  recharges     Recharge[]
+  stockLogs     StockLog[]
+}
+
+model StockLog {
+  id            String      @id @default(uuid()) @map("_id") @db.Uuid
+  productId     String      @db.Uuid
+  oldStock      Int
+  newStock      Int
+  change        Int
+  reason        String
+  changedBy     String?     @db.Uuid
+  notes         String?
+  createdAt     DateTime    @default(now())
+
+  product       Product     @relation(fields: [productId], references: [id])
+  admin         Admin?      @relation(fields: [changedBy], references: [id])
+}
+
+model Setting {
+  id            String      @id @default(uuid()) @map("_id") @db.Uuid
+  key           String      @unique
+  value         String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Alert {
+  id            String      @id @default(uuid()) @map("_id") @db.Uuid
+  type          String
+  title         String
+  message       String
+  productId     String?     @db.Uuid
+  data          String?
+  isRead        Boolean     @default(false)
+  readBy        String?     @db.Uuid
+  readAt        DateTime?
+  createdAt     DateTime    @default(now())
+}
+
