@@ -22,6 +22,7 @@ export async function createToken({ purchaseId, items }: { purchaseId: string, i
   const tokenNumber = `TK-${Date.now().toString().slice(-6)}`;
 
   const email = purchase.user.email;
+  const unitPrice = purchase.unitPrice;
 
   if (!email) {
     throw new Error("User does not have an email");
@@ -39,11 +40,14 @@ export async function createToken({ purchaseId, items }: { purchaseId: string, i
       emailSent: true,
       smsSent: false,
       status: "Pending",
+    
     },
   });
+  console.log(items);
+  
 
   // ✅ Send email
-await sendTokenEmail(purchase.user.email, tokenNumber, items, purchase.totalAmount);
+await sendTokenEmail(purchase.user.email, tokenNumber, items, unitPrice);
 
 
   return token;
@@ -62,8 +66,8 @@ const itemList = items
   .map(item => {
     const name = item.name || "Unnamed";
     const qty = item.quantity || 0;
-    const unit = item.unitPrice || 0;
-    const total = qty * unit;
+    const unit = item.price || 0;
+    const total = qty * item.price;
     return `• ${name} x ${qty} @ ₹${unit} = ₹${total}`;
   })
   .join("<br>");
@@ -71,16 +75,16 @@ const itemList = items
 console.log("EMAIL ITEMS:", items);
 
   const mailOptions = {
-    from: "Smart Canteen <yourgmail@gmail.com>",
+    from: "Roriri Cafe<kprahul1143@gmail.com>",
     to,
-    subject: `🧾 Your Smart Canteen Token: ${tokenNumber}`,
+    subject: `🧾 Roriri Cafe Token: ${tokenNumber}`,
     html: `
       <h2>✅ Order Confirmation</h2>
       <p><strong>Token Number:</strong> ${tokenNumber}</p>
-      <p><strong>Total:</strong> ₹${total.toFixed(2)}</p>
+      <p><strong>Total:</strong> ₹${total}</p>
       <p><strong>Items:</strong><br>${itemList}</p>
       <br />
-      <p>Thank you for ordering from Smart Canteen!</p>
+      <p>Thank you for ordering from Roriri Cafe!</p>
     `,
   };
 
