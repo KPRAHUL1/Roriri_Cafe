@@ -1,3 +1,4 @@
+import { UserType } from '@prisma/client';
 import { db } from '../../shared/lib/db';
 
 export async function scanQRCode(qrCode: string) {
@@ -8,7 +9,8 @@ export async function scanQRCode(qrCode: string) {
       OR: [
         { qrCode: qrCode },
         { userId: qrCode },
-        { email: qrCode }
+        { email: qrCode },
+        {pin:qrCode}
       ],
       status: 'Active'
     },
@@ -31,6 +33,10 @@ export async function scanQRCode(qrCode: string) {
     email: user.email,
     phone: user.phone,
     qrCode:user.qrCode,
+    pin:user.pin,
+    department:user.department,
+    UserType:user.userType,
+    
     // transactions property is available due to the include statement
     recentPurchases: user.transactions,
   };

@@ -89,7 +89,7 @@ const AdminDashboard = () => {
         lg:translate-x-0 transition-transform duration-300 ease-in-out
       `}>
         {/* Header */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-200 ">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-indigo-600">Roriri Cafe</h1>
@@ -105,7 +105,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4">
+        <nav className="flex-1 p-4 ">
           <ul className="space-y-2">
             {navItems.map((item) => (
               <li key={item.name}>
@@ -127,10 +127,7 @@ const AdminDashboard = () => {
               </li>
             ))}
           </ul>
-        </nav>
-
-        {/* Admin info and logout */}
-        <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200">
           <div className="flex items-center mb-4">
             <div className="w-10 h-10 rounded-full bg-indigo-500 text-white flex items-center justify-center font-bold text-sm">
               {adminData?.name?.[0]?.toUpperCase() || 'A'}
@@ -152,6 +149,10 @@ const AdminDashboard = () => {
             <span className="font-medium">Logout</span>
           </button>
         </div>
+        </nav>
+
+        {/* Admin info and logout */}
+        
       </aside>
 
       {/* Main content */}

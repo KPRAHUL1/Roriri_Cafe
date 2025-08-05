@@ -59,10 +59,13 @@ model User {
   qrCodeImage   String?
   balance       Float       @default(0.00)
   department    String?
+  pin           String?     // New PIN field (hashed)
+  pinAttempts   Int         @default(0)
+  pinLockedUntil DateTime?  // For temporary locking
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   lastUsed      DateTime?
-
+  
   transactions  Transaction[]
   recharges     Recharge[]
   purchases     Purchase[]

@@ -36,8 +36,13 @@ const AddUserAmountPage = () => {
         
         if (response.ok) {
           const data = await response.json();
-          setUsers(data);
-          setFilteredUsers(data);
+console.log('Fetched users:', data);
+const userList = data.users;
+
+          setUsers(userList);
+          setFilteredUsers(userList);
+          
+          
         } else {
           setStatus({ 
             type: 'error', 
@@ -267,7 +272,7 @@ const AddUserAmountPage = () => {
 
             {/* Users List */}
             <div className="space-y-3 max-h-96 overflow-y-auto">
-              {filteredUsers.length === 0 ? (
+              {Array.isArray(filteredUsers) && filteredUsers.length === 0 ? (
                 <div className="text-center py-8">
                   <User className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500">
