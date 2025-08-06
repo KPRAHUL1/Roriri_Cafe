@@ -134,28 +134,28 @@ const ShoppingView = ({ userData,setUserData, onBackToUser }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b p-4">
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg border-b p-6">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center space-x-4">
             <button
               onClick={onBackToUser}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-2 hover:bg-indigo-100 rounded-full transition-colors"
             >
-              <ArrowLeft size={24} className="text-gray-600" />
+              <ArrowLeft size={24} className="text-white" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">🍽️ Roriri Cafe</h1>
-              <p className="text-sm text-gray-600">Welcome, {userData.name}</p>
+              <h1 className="text-3xl font-extrabold text-white drop-shadow">🍽️ Roriri Cafe</h1>
+              <p className="text-sm text-indigo-100">Welcome, {userData.name}</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
             <div className="text-right">
-              <p className="text-sm text-gray-600">Balance</p>
-              <p className="text-lg font-bold text-green-600">₹{userData.balance.toFixed(2)}</p>
+              <p className="text-sm text-indigo-100">Balance</p>
+              <p className="text-lg font-bold text-green-300">₹{userData.balance.toFixed(2)}</p>
             </div>
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-full flex items-center justify-center shadow-lg">
               <User className="text-white" size={20} />
             </div>
           </div>
@@ -165,7 +165,7 @@ const ShoppingView = ({ userData,setUserData, onBackToUser }) => {
       {/* Error Alert */}
       {error && (
         <div className="max-w-7xl mx-auto p-4">
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow">
             <div className="flex items-center">
               <AlertCircle className="text-red-500 mr-3" size={20} />
               <p className="text-red-700 text-sm font-medium">{error}</p>
@@ -176,8 +176,8 @@ const ShoppingView = ({ userData,setUserData, onBackToUser }) => {
 
       {/* Processing Order Overlay */}
       {processingOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl p-6 text-center">
+        <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl p-8 text-center shadow-2xl">
             <Loader className="animate-spin text-indigo-600 mx-auto mb-4" size={32} />
             <p className="text-gray-700 font-medium">Processing your order...</p>
           </div>
@@ -185,14 +185,13 @@ const ShoppingView = ({ userData,setUserData, onBackToUser }) => {
       )}
 
       <div className="max-w-7xl mx-auto p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Products Section */}
           <div className="lg:col-span-2">
-            <div className="mb-6">
+            <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-2">Menu</h2>
               <p className="text-gray-600">Choose from our delicious selection</p>
             </div>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {products.map((product) => (
                 <ProductCard
@@ -206,16 +205,17 @@ const ShoppingView = ({ userData,setUserData, onBackToUser }) => {
 
           {/* Cart Section */}
           <div className="lg:col-span-1">
-            <div className="sticky top-4">
-             <Cart
-  cartItems={cartItems}
-  onUpdateQuantity={updateQuantity}
-  onRemoveItem={removeFromCart}
-  onCheckout={handleCheckout}
-  userBalance={userData.balance}
-  processingOrder={processingOrder} // ✅ Pass it here
-/>
-
+            <div className="sticky top-6">
+              <div className="rounded-2xl shadow-2xl bg-white border border-gray-100 p-4 transition-all duration-300">
+                <Cart
+                  cartItems={cartItems}
+                  onUpdateQuantity={updateQuantity}
+                  onRemoveItem={removeFromCart}
+                  onCheckout={handleCheckout}
+                  userBalance={userData.balance}
+                  processingOrder={processingOrder}
+                />
+              </div>
             </div>
           </div>
         </div>
