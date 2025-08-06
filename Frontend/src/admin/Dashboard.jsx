@@ -13,10 +13,14 @@ import {
   ListOrdered,
 } from 'lucide-react';
 import DashboardCard from './dashboardCard';
+import apiService from '../components/Scan/apiService'; // Adjust the import based on your project structure
 
 const AdminDashboard = () => {
   const [adminData, setAdminData] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [orders, setOrders] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,7 +32,7 @@ const AdminDashboard = () => {
     }
   }, []);
 
-  
+  const API_BASE_URL = 'http://localhost:7700/api';
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -70,7 +74,36 @@ const AdminDashboard = () => {
   ];
 
   const isCurrentPath = (path) => location.pathname === path;
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const productsData = await apiService.getProducts();
+      setProducts(productsData);
+    };
+    fetchProducts();
+  }, []);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const UsersData = await fetch(`${API_BASE_URL}/users`);
+      if (!UsersData.ok) {
+        throw new Error('Failed to fetch users');
+      }
+      const users = await UsersData.json();
+      setUsers(users);  
+    };
+    fetchUsers();
+  }, []);
 
+  useEffect(() => {
+    const fetchOrders = async () => { 
+      const ordersData = await fetch(`${API_BASE_URL}/order-history`);
+      if (!ordersData.ok) {
+        throw new Error('Failed to fetch orders');
+      }
+      const orders = await ordersData.json();
+      setOrders(orders);
+    };
+    fetchOrders();  
+  }, []);
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Mobile sidebar overlay */}
@@ -225,21 +258,21 @@ const AdminDashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                     <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                      Total Products
+                      Total Products 
                     </h3>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">--</p>
+                    <p className="text-3xl font-bold text-gray-900 mt-2">{products.length}</p>
                   </div>
                   <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                     <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
                       Active Users
                     </h3>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">--</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-2"></p>
                   </div>
                   <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                     <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
                       Today's Sales
                     </h3>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">₹--</p>
+                    <p className="text-3xl font-bold text-gray-900 mt-2">₹</p>
                   </div>
                 </div>
               </div>
