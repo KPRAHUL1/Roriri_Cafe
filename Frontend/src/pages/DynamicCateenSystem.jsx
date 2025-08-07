@@ -198,7 +198,7 @@ const handleQRScan = async (qrCode) => {
               </button>
 
               {/* Admin Actions */}
-              <div className="border-t pt-6">
+              {/* <div className="border-t pt-6">
                 <p className="text-sm font-medium text-gray-600 text-center mb-3">Admin Actions</p>
                 <button
                   onClick={() => alert('Navigate to /admin/login')}
@@ -207,7 +207,7 @@ const handleQRScan = async (qrCode) => {
                   <Settings size={20} />
                   <span>Admin Panel</span>
                 </button>
-              </div>
+              </div> */}
 
               <div className="mt-8 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
                 <p className="text-sm text-gray-600 mb-2 font-medium">🔗 Backend Connected</p>
@@ -389,14 +389,6 @@ const handleQRScan = async (qrCode) => {
                   >
                     <ShoppingCart size={24} />
                     <span>Start Shopping</span>
-                  </button>
-                  
-                  <button
-                    onClick={() => alert('Recharge functionality coming soon!')}
-                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-4 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 flex items-center justify-center space-x-2"
-                  >
-                    <Plus size={20} />
-                    <span>Recharge Balance</span>
                   </button>
                 </div>
               </div>

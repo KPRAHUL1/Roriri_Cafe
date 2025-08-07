@@ -4,12 +4,15 @@ import { AlertCircle, ArrowLeft, Loader, User } from "lucide-react";
 import ProductCard from "./ProductCard";
 import Cart from "./Cart";
 
+const categories = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Tea', 'Coffee', 'Cooldrinks', 'Snacks'];
+
 const ShoppingView = ({ userData,setUserData, onBackToUser }) => {
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [processingOrder, setProcessingOrder] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All'); // NEW
 
   useEffect(() => {
     loadProducts();
@@ -122,6 +125,11 @@ const ShoppingView = ({ userData,setUserData, onBackToUser }) => {
     );
   }
 
+  // Filter products by selected category
+  const filteredProducts = selectedCategory === 'All'
+    ? products
+    : products.filter(p => p.category === selectedCategory);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg border-b p-6">
@@ -174,15 +182,36 @@ const ShoppingView = ({ userData,setUserData, onBackToUser }) => {
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-2">Menu</h2>
               <p className="text-gray-600">Choose from our delicious selection</p>
+              {/* Category Filter */}
+              <div className="flex flex-wrap gap-2 mt-4">
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-4 py-2 rounded-full font-medium transition-colors duration-200 shadow-sm
+                      ${selectedCategory === cat
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-indigo-100'}
+                    `}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}
                   onAddToCart={addToCart}
                 />
               ))}
+              {filteredProducts.length === 0 && (
+                <div className="col-span-2 text-center text-gray-500 py-8">
+                  No products found in this category.
+                </div>
+              )}
             </div>
           </div>
           <div className="lg:col-span-1">
