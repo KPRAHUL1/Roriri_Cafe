@@ -15,8 +15,8 @@ export async function registerAdmin(payload: any) {
       email: payload.email,
       username: payload.username,
       password: hashed,
-      role: payload.role || "Staff", // ✅ use valid enum
-      ...(payload.phone && { phone: payload.phone }), // ✅ optional field safely
+      role: payload.role || "Staff",
+      ...(payload.phone && { phone: payload.phone }),
     },
   });
 

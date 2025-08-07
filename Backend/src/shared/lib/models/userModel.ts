@@ -7,10 +7,10 @@ export type UserModel = {
   username: string;
   emailVerified?: Date | null;
   phoneNumber: string;
-  gender: 'male' | 'female' | 'other'; // suggest enum-like control
-  signUpType?: 'manual' | 'google' | 'github' | 'other'; // suggest specific values
+  gender: 'male' | 'female' | 'other';
+  signUpType?: 'manual' | 'google' | 'github' | 'other';
   isActive: boolean;
-  role: 'student' | 'employee' | 'admin' | 'trainee' | string; // match your app roles
+  role: 'student' | 'employee' | 'admin' | 'trainee' | string;
   createdAt: Date;
   deletedAt?: Date | null;
 };

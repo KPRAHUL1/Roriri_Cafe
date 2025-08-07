@@ -36,8 +36,6 @@ export async function scanQRCode(qrCode: string) {
     pin:user.pin,
     department:user.department,
     UserType:user.userType,
-    
-    // transactions property is available due to the include statement
     recentPurchases: user.transactions,
   };
 }

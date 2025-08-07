@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ===================== ENUMS =====================
 enum UserType {
   Student
   Employee
@@ -45,7 +44,6 @@ enum TokenStatus {
   Failed
 }
 
-// ===================== MODELS =====================
 
 model User {
   id            String      @id @default(uuid()) @map("_id") @db.Uuid
@@ -59,9 +57,9 @@ model User {
   qrCodeImage   String?
   balance       Float       @default(0.00)
   department    String?
-  pin           String?     // New PIN field (hashed)
+  pin           String?    
   pinAttempts   Int         @default(0)
-  pinLockedUntil DateTime?  // For temporary locking
+  pinLockedUntil DateTime? 
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   lastUsed      DateTime?
@@ -143,7 +141,7 @@ model Token {
   purchaseId    String      @unique @db.Uuid
   tokenNumber   String      @unique
   totalAmount   Float
-  items         String      // JSON stored as string, following your pattern
+  items         String      
   emailSent     Boolean     @default(false)
   smsSent       Boolean     @default(false)
   status        TokenStatus @default(Pending)

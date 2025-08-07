@@ -1,10 +1,7 @@
-// routes/scan.routes.js
 import express from 'express';
 import { scanQRCode } from './scan.service';
 
 const router = express.Router();
-
-// POST /api/scan (matches your frontend)
 router.post('/scan', async (req:any, res:any) => {
   const { qrCode } = req.body;
   
@@ -21,7 +18,6 @@ router.post('/scan', async (req:any, res:any) => {
   }
 });
 
-// GET fallback for manual entry
 router.get('/user/:identifier', async (req, res) => {
   const { identifier } = req.params;
   

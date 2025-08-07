@@ -16,7 +16,7 @@ export async function createToken({ purchaseId, items }: { purchaseId: string, i
   });
 
   if (existingToken) {
-    return existingToken; // Avoid duplicate
+    return existingToken; 
   }
 
   const tokenNumber = `TK-${Date.now().toString().slice(-6)}`;
@@ -46,7 +46,6 @@ export async function createToken({ purchaseId, items }: { purchaseId: string, i
   console.log(items);
   
 
-  // ✅ Send email
 await sendTokenEmail(purchase.user.email, tokenNumber, items, unitPrice);
 
 
@@ -57,8 +56,8 @@ async function sendTokenEmail(to: string, tokenNumber: string, items: any[], tot
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "kprahul1143@gmail.com",         // 🔐 your Gmail
-      pass: "evqa zlee flqk kikc",           // 🔐 app-specific password
+      user: "kprahul1143@gmail.com",         
+      pass: "evqa zlee flqk kikc",          
     },
   });
 

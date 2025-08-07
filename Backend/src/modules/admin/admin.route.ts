@@ -8,7 +8,7 @@ router.post("/register", async (req, res) => {
     const result = await registerAdmin(req.body);
     res.status(201).json(result);
   } catch (err: any) {
-    console.error("Register Error:", err); // 👀 See actual error
+    console.error("Register Error:", err); 
     res.status(400).json({ success: false, error: err.message });
   }
 });

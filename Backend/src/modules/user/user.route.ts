@@ -26,7 +26,6 @@ import {
 const express = require('express');
 const router = express.Router();
 
-// Configure email transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -35,16 +34,12 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Middleware for logging requests
 const logRequest = (req: Request, res: Response, next: any) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
 };
 
-// Apply logging middleware
 router.use(logRequest);
-
-// Get all users with filtering and pagination
 router.get('/', async (req: Request, res: Response) => {
   try {
     const filters = {
@@ -67,7 +62,6 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// Get system statistics
 router.get('/stats/system', async (req: Request, res: Response) => {
   try {
     const stats = await getSystemStats();
@@ -81,7 +75,6 @@ router.get('/stats/system', async (req: Request, res: Response) => {
   }
 });
 
-// Search users
 router.get('/search', async (req: Request, res: Response) => {
   try {
     const query = req.query.q as string;
@@ -114,7 +107,6 @@ router.get('/search', async (req: Request, res: Response) => {
   }
 });
 
-// Get user by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const response = await getUserById(req.params.id);
@@ -131,7 +123,6 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Get user statistics
 router.get('/:id/stats', async (req: Request, res: Response) => {
   try {
     const stats = await getUserStats(req.params.id);
@@ -145,7 +136,6 @@ router.get('/:id/stats', async (req: Request, res: Response) => {
   }
 });
 
-// Get user activity
 router.get('/:id/activity', async (req: Request, res: Response) => {
   try {
     const days = req.query.days ? parseInt(req.query.days as string) : 30;
@@ -160,12 +150,10 @@ router.get('/:id/activity', async (req: Request, res: Response) => {
   }
 });
 
-// Export user data
 router.get('/:id/export', async (req: Request, res: Response) => {
   try {
     const userData = await exportUserData(req.params.id);
     
-    // Set headers for file download
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', `attachment; filename="user-${userData.userId}-export.json"`);
     
@@ -179,7 +167,6 @@ router.get('/:id/export', async (req: Request, res: Response) => {
   }
 });
 
-// Get user by QR code - for scanner
 router.get('/scan/:qrCode', async (req: Request, res: Response) => {
   try {
     const response = await getUserByQrCode(req.params.qrCode);
@@ -196,7 +183,6 @@ router.get('/scan/:qrCode', async (req: Request, res: Response) => {
   }
 });
 
-// Get user by userId (custom field)
 router.get('/:userId', async (req: Request, res: Response) => {
   try {
     const response = await getUserByUserId(req.params.userId);
@@ -213,10 +199,8 @@ router.get('/:userId', async (req: Request, res: Response) => {
   }
 });
 
-// Create new user
 router.post('/', async (req: Request, res: Response) => {
   try {
-    // Validate input data
     const validation = validateUserData(req.body);
     if (!validation.isValid) {
       return res.status(400).json({ 
@@ -225,7 +209,6 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    // Check if user with email already exists
     const existingUser = await db.user.findUnique({
       where: { email: req.body.email }
     });
@@ -233,8 +216,6 @@ router.post('/', async (req: Request, res: Response) => {
     if (existingUser) {
       return res.status(409).json({ error: 'User with this email already exists' });
     }
-
-    // Check if userId already exists (if provided)
     if (req.body.userId) {
       const existingUserId = await db.user.findUnique({
         where: { userId: req.body.userId }
@@ -256,13 +237,10 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// Update user
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const payload = req.body;
     const id = req.params.id;
-
-    // Check if user exists
     const existingUser = await db.user.findUnique({
       where: { id }
     });
@@ -271,7 +249,6 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Check email uniqueness if email is being updated
     if (payload.email && payload.email !== existingUser.email) {
       const emailExists = await db.user.findUnique({
         where: { email: payload.email }
@@ -293,7 +270,6 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Update user balance
 router.patch('/:id/balance', async (req: Request, res: Response) => {
   try {
     const { amount, operation, description } = req.body;
@@ -323,7 +299,6 @@ router.patch('/:id/balance', async (req: Request, res: Response) => {
   }
 });
 
-// Recharge user balance
 router.post('/:id/recharge', async (req: Request, res: Response) => {
   try {
     const payload = req.body;
@@ -337,7 +312,6 @@ router.post('/:id/recharge', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Payment method is required' });
     }
 
-    // Validate payment method against your enum
     const validPaymentMethods = ['Cash', 'UPI', 'Card', 'BankTransfer'];
     if (!validPaymentMethods.includes(payload.paymentMethod)) {
       return res.status(400).json({ 
@@ -357,7 +331,6 @@ router.post('/:id/recharge', async (req: Request, res: Response) => {
   }
 });
 
-// Delete user (soft delete - set status to Inactive)
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
@@ -384,7 +357,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Test database connection
 router.get('/test/connection', async (req: Request, res: Response) => {
   try {
     console.log('🧪 Testing database connection...');
@@ -423,26 +395,20 @@ router.get('/test/connection', async (req: Request, res: Response) => {
   }
 });
 
-// Send QR code via email
 router.post('/send-qr-email', async (req: Request, res: Response) => {
   try {
     const { email, name, userId, qrCode, qrCodeImage, userType, hasPinSetup } = req.body;
 
-    // Validate required fields
     if (!email || !qrCodeImage) {
       return res.status(400).json({ error: 'Email and QR code image are required' });
     }
 
-    // Validate email format
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: 'Invalid email format' });
     }
 
-    // Convert base64 to buffer for email attachment
     const base64Data = qrCodeImage.replace(/^data:image\/png;base64,/, '');
     const qrBuffer = Buffer.from(base64Data, 'base64');
-
-    // Email configuration
     const mailOptions = {
       from: {
         name: 'Roriri Cafe',
@@ -542,7 +508,6 @@ router.post('/send-qr-email', async (req: Request, res: Response) => {
       ]
     };
 
-    // Send email
     const info = await transporter.sendMail(mailOptions);
     
     console.log(`QR code email sent successfully to ${email}. Message ID: ${info.messageId}`);
@@ -572,12 +537,10 @@ router.post('/send-qr-email', async (req: Request, res: Response) => {
   }
 });
 
-// PIN Management Routes
 
-// Verify PIN
 router.post('/:id/verify-pin', async (req: Request, res: Response) => {
   try {
-    const userId = req.params.id; // This is "RAHUL123456" from the URL
+    const userId = req.params.id;
     const { pin } = req.body;
     
     if (!pin) {
@@ -588,7 +551,7 @@ router.post('/:id/verify-pin', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'PIN must be exactly 4 digits' });
     }
     
-    const result = await verifyUserPin(userId, pin); // Pass the string userId
+    const result = await verifyUserPin(userId, pin);
     res.status(200).json(result);
     
   } catch (error: any) {
@@ -610,11 +573,9 @@ router.post('/:id/verify-pin', async (req: Request, res: Response) => {
 }); 
 
 
-// Set PIN (for new users or PIN reset)
 router.post('/:id/set-pin', async (req: Request, res: Response) => {
   try {
     const { pin, confirmPin } = req.body;
-    // Use 'paramUserId' to avoid confusion with the 'userId' field in the database
     const paramUserId = req.params.id; 
     
     if (!pin) {
@@ -628,11 +589,9 @@ router.post('/:id/set-pin', async (req: Request, res: Response) => {
     if (!/^\d{4}$/.test(pin)) {
       return res.status(400).json({ error: 'PIN must be exactly 4 digits' });
     }
-    
-    // Check if user exists using the 'userId' field
     const user = await db.user.findUnique({
-      where: { userId: paramUserId }, // <--- CHANGED: Query by 'userId' field
-      select: { id: true, name: true, userId: true } // Select userId too for clarity
+      where: { userId: paramUserId },
+      select: { id: true, name: true, userId: true }
     });
     
     if (!user) {
@@ -643,7 +602,7 @@ router.post('/:id/set-pin', async (req: Request, res: Response) => {
     // If your `setUserPin` function updates by the UUID `id`, pass `user.id`.
     // If it updates by the string `userId`, pass `user.userId`.
     // Based on your `setUserPin` below, it's expecting the `userId` string.
-    const result = await setUserPin(user.userId, pin); // Pass user.userId (e.g., "RAHUL143")
+    const result = await setUserPin(user.userId, pin);
     res.status(200).json(result);
     
   } catch (error: any) {
@@ -655,8 +614,6 @@ router.post('/:id/set-pin', async (req: Request, res: Response) => {
   }
 }); 
 
-
-// Check if user has PIN
 router.get('/:id/has-pin', async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
@@ -671,12 +628,9 @@ router.get('/:id/has-pin', async (req: Request, res: Response) => {
   }
 });
 
-// Reset PIN (admin only)
 router.post('/:id/reset-pin', async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
-    
-    // Reset PIN by setting it to null and clearing attempts
     await db.user.update({
       where: { id: userId },
       data: {
@@ -699,7 +653,6 @@ router.post('/:id/reset-pin', async (req: Request, res: Response) => {
   }
 });
 
-// Unlock user account (admin only)
 router.post('/:id/unlock', async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
@@ -737,11 +690,8 @@ router.post('/:id/unlock', async (req: Request, res: Response) => {
     });
   }
 });
-
-// Health check endpoint
 router.get('/health/check', async (req: Request, res: Response) => {
   try {
-    // Test database connection
     await db.user.findFirst({
       select: { id: true }
     });
@@ -764,7 +714,6 @@ router.get('/health/check', async (req: Request, res: Response) => {
   }
 });
 
-// Error handling middleware
 router.use((error: any, req: Request, res: Response, next: any) => {
   console.error('Unhandled error in user routes:', error);
   

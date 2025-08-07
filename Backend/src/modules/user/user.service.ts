@@ -39,7 +39,6 @@ interface RechargePayload {
   rechargedBy?: string; // Admin ID
 }
 
-// Get all active users with optional filtering
 export async function getAllUsers(filters?: {
   status?: string;
   userType?: string;
@@ -53,7 +52,7 @@ export async function getAllUsers(filters?: {
   if (filters?.status) {
     where.status = filters.status;
   } else {
-    where.status = 'Active'; // Default to active users
+    where.status = 'Active'; 
   }
   
   if (filters?.userType) {
@@ -124,7 +123,6 @@ export async function getAllUsers(filters?: {
   };
 }
 
-// Get user by ID with full details
 export async function getUserById(id: string) {
   return await db.user.findUnique({
     where: {
@@ -180,7 +178,6 @@ export async function getUserById(id: string) {
   });
 }
 
-// Get user by QR code - main scanner function
 export async function getUserByQrCode(qrCode: string) {
   const user = await db.user.findFirst({
     where: {
@@ -199,7 +196,7 @@ export async function getUserByQrCode(qrCode: string) {
       department: true,
       qrCode: true,
       qrCodeImage: true,
-      pin: true, // Include to check if PIN is set
+      pin: true, 
       pinAttempts: true,
       pinLockedUntil: true,
       lastUsed: true,
@@ -208,7 +205,6 @@ export async function getUserByQrCode(qrCode: string) {
   });
 
   if (user) {
-    // Update last used timestamp
     await db.user.update({
       where: {
         id: user.id,
@@ -217,8 +213,6 @@ export async function getUserByQrCode(qrCode: string) {
         lastUsed: new Date(),
       },
     });
-
-    // Don't return the actual PIN hash
     const { pin, ...userWithoutPin } = user;
     return {
       ...userWithoutPin,
@@ -230,7 +224,6 @@ export async function getUserByQrCode(qrCode: string) {
   return null;
 }
 
-// Get user by custom userId field
 export async function getUserByUserId(userId: string) {
   return await db.user.findFirst({
     where: {
@@ -255,18 +248,14 @@ export async function getUserByUserId(userId: string) {
   });
 }
 
-// Create new user with QR code generation
 export async function createUser(payload: CreateUserPayload) {
-  // Generate unique QR code
   const qrCode = generateQrCode(payload.userType, payload.name);
   
-  // Hash PIN if provided
   let hashedPin = null;
   if (payload.pin && payload.pin.length === 4) {
     hashedPin = await bcrypt.hash(payload.pin, SALT_ROUNDS);
   }
   
-  // Use transaction to ensure atomicity
   return await db.$transaction(async (prisma) => {
     const user = await prisma.user.create({
       data: {
@@ -286,7 +275,6 @@ export async function createUser(payload: CreateUserPayload) {
       },
     });
 
-    // Create initial transaction record if balance > 0
     if (payload.balance && payload.balance > 0) {
       await prisma.transaction.create({
         data: {
@@ -305,7 +293,6 @@ export async function createUser(payload: CreateUserPayload) {
   });
 }
 
-// Update user by ID
 export async function updateUserById(id: string, payload: UpdateUserPayload) {
   return await db.user.update({
     where: {
@@ -318,7 +305,6 @@ export async function updateUserById(id: string, payload: UpdateUserPayload) {
   });
 }
 
-// Update user balance with transaction logging
 export async function updateUserBalance(id: string, amount: number, operation: 'add' | 'subtract', description?: string) {
   const user = await db.user.findUnique({
     where: { id: id },
@@ -358,7 +344,6 @@ export async function updateUserBalance(id: string, amount: number, operation: '
       },
     });
 
-    // Create transaction record
     await prisma.transaction.create({
       data: {
         userId: id,
@@ -374,7 +359,6 @@ export async function updateUserBalance(id: string, amount: number, operation: '
   });
 }
 
-// Recharge user balance and create recharge record
 export async function rechargeUserBalance(userId: string, payload: RechargePayload) {
   const user = await db.user.findUnique({
     where: { id: userId },
@@ -396,9 +380,7 @@ export async function rechargeUserBalance(userId: string, payload: RechargePaylo
   const currentBalance = parseFloat(user.balance.toString());
   const newBalance = currentBalance + payload.amount;
 
-  // Use transaction to ensure data consistency
   return await db.$transaction(async (prisma) => {
-    // Update user balance
     const updatedUser = await prisma.user.update({
       where: {
         id: userId,
@@ -408,8 +390,6 @@ export async function rechargeUserBalance(userId: string, payload: RechargePaylo
         updatedAt: new Date(),
       },
     });
-
-    // Create recharge record
     const recharge = await prisma.recharge.create({
       data: {
         userId: userId,
@@ -420,8 +400,6 @@ export async function rechargeUserBalance(userId: string, payload: RechargePaylo
         rechargedBy: payload.rechargedBy,
       },
     });
-
-    // Create transaction record
     await prisma.transaction.create({
       data: {
         userId: userId,
@@ -441,17 +419,14 @@ export async function rechargeUserBalance(userId: string, payload: RechargePaylo
   });
 }
 
-// PIN Management Functions
 export async function verifyUserPin(userId: string, pin: string) {
-  // Find the user by the 'userId' field (the string, e.g., "RAHUL123456")
   const user = await db.user.findUnique({
-    where: { userId: userId }, // This is correct, querying by the string userId
+    where: { userId: userId },
     select: {
       pin: true,
       pinAttempts: true,
       pinLockedUntil: true,
       status: true,
-      // It's good practice to select 'userId' here if you're going to use it for updates
       userId: true 
     }
   });
@@ -463,19 +438,14 @@ export async function verifyUserPin(userId: string, pin: string) {
   if (!user.pin) {
     throw new Error('PIN not set for this user');
   }
-
-  // Check if account is locked
   if (user.pinLockedUntil && new Date() < user.pinLockedUntil) {
     throw new Error('Account temporarily locked due to too many failed attempts');
   }
-
-  // Verify PIN
   const isValidPin = await bcrypt.compare(pin, user.pin);
 
   if (isValidPin) {
-    // Reset attempts on successful verification
     await db.user.update({
-      where: { userId: user.userId }, // <--- CRITICAL CHANGE: Use user.userId for update
+      where: { userId: user.userId },
       data: { 
         pinAttempts: 0,
         pinLockedUntil: null
@@ -483,18 +453,15 @@ export async function verifyUserPin(userId: string, pin: string) {
     });
     return { success: true, message: 'PIN verified successfully' };
   } else {
-    // Increment failed attempts
     const newAttempts = (user.pinAttempts || 0) + 1;
     
     let updateData: any = { pinAttempts: newAttempts };
-    
-    // Lock account after max attempts
     if (newAttempts >= MAX_PIN_ATTEMPTS) {
       updateData.pinLockedUntil = new Date(Date.now() + PIN_LOCK_DURATION);
     }
     
     await db.user.update({
-      where: { userId: user.userId }, // <--- CRITICAL CHANGE: Use user.userId for update
+      where: { userId: user.userId },
       data: updateData
     });
 
@@ -515,7 +482,7 @@ export async function setUserPin(userIdentifier: string, pin: string) {
   const hashedPin = await bcrypt.hash(pin, SALT_ROUNDS);
   
   const updatedUser = await db.user.update({
-    where: { userId: userIdentifier }, // <--- CHANGED: Update by 'userId' field
+    where: { userId: userIdentifier },
     data: { 
       pin: hashedPin,
       pinAttempts: 0,
@@ -538,8 +505,6 @@ export async function checkUserHasPin(userId: string) {
   
   return { hasPin: !!user.pin };
 }
-
-// Soft delete user (set status to Inactive)
 export async function deleteUserById(id: string) {
   return await db.user.update({
     where: {
@@ -551,8 +516,6 @@ export async function deleteUserById(id: string) {
     },
   });
 }
-
-// Get user statistics
 export async function getUserStats(userId: string) {
   const [user, transactions, purchases, recharges] = await Promise.all([
     db.user.findUnique({
@@ -593,8 +556,6 @@ export async function getUserStats(userId: string) {
     lastActivity: user.lastUsed
   };
 }
-
-// Search users with advanced filtering
 export async function searchUsers(query: string, filters?: {
   userType?: string;
   department?: string;
@@ -666,8 +627,6 @@ export async function searchUsers(query: string, filters?: {
     take: 50
   });
 }
-
-// Get user activity summary
 export async function getUserActivity(userId: string, days: number = 30) {
   const fromDate = new Date();
   fromDate.setDate(fromDate.getDate() - days);
@@ -721,8 +680,6 @@ export async function getUserActivity(userId: string, days: number = 30) {
     }
   };
 }
-
-// Export user data
 export async function exportUserData(userId: string) {
   const userData = await db.user.findUnique({
     where: { id: userId },
@@ -753,18 +710,12 @@ export async function exportUserData(userId: string) {
   if (!userData) {
     throw new Error('User not found');
   }
-
-  // Remove sensitive data
   const { pin, pinAttempts, pinLockedUntil, ...exportData } = userData;
 
   return exportData;
 }
-
-// Validate user data
 export function validateUserData(userData: CreateUserPayload): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
-
-  // Required fields
   if (!userData.name?.trim()) {
     errors.push('Name is required');
   }
@@ -774,8 +725,6 @@ export function validateUserData(userData: CreateUserPayload): { isValid: boolea
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.email)) {
     errors.push('Invalid email format');
   }
-
-  // Optional validations
   if (userData.phone && !/^[\+]?[1-9][\d]{0,15}$/.test(userData.phone.replace(/\s/g, ''))) {
     errors.push('Invalid phone number format');
   }
@@ -793,8 +742,6 @@ export function validateUserData(userData: CreateUserPayload): { isValid: boolea
     errors
   };
 }
-
-// Get system statistics
 export async function getSystemStats() {
   const [
     totalUsers,
@@ -815,7 +762,7 @@ export async function getSystemStats() {
     db.user.count({
       where: {
         lastUsed: {
-          gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // Last 24 hours
+          gte: new Date(Date.now() - 24 * 60 * 60 * 1000)
         }
       }
     })
@@ -835,7 +782,6 @@ export async function getSystemStats() {
   };
 }
 
-// Helper functions
 function generateQrCode(userType: string, name: string): string {
   const prefix = userType.substring(0, 3).toUpperCase();
   const timestamp = Date.now().toString().slice(-6);

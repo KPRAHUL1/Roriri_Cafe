@@ -1,4 +1,3 @@
-// src/modules/transaction/transaction.route.ts
 import express from 'express';
 import { createTransaction } from './transaction.service';
 
