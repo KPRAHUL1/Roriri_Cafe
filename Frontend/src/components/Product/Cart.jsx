@@ -38,7 +38,7 @@ const Cart = ({
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-2xl overflow-hidden animate-fadeInScale w-full max-w-md mx-auto my-8 border border-gray-100">
+    <div className="bg-white h-full rounded-2xl shadow-2xl overflow-hidden animate-fadeInScale w-full max-w-md mx-auto my-8 border border-gray-100">
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-5">
         <h3 className="text-xl font-bold flex items-center tracking-tight">
           <ShoppingCart className="mr-2" size={22} />
