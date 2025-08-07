@@ -3,7 +3,6 @@ import { createPurchase } from './purchase.service';
 
 const router = express.Router();
 
-// POST /api/purchase
 router.post('/', async (req, res) => {
   try {
     const result = await createPurchase(req.body);

@@ -13,7 +13,7 @@ import {
   ListOrdered,
 } from 'lucide-react';
 import DashboardCard from './dashboardCard';
-import apiService from '../components/Scan/apiService'; // Adjust the import based on your project structure
+import apiService from '../components/Scan/apiService';
 
 const AdminDashboard = () => {
   const [adminData, setAdminData] = useState(null);
@@ -25,7 +25,6 @@ const AdminDashboard = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Get admin data from localStorage
     const storedAdminData = localStorage.getItem('adminData');
     if (storedAdminData) {
       setAdminData(JSON.parse(storedAdminData));
@@ -106,7 +105,6 @@ const AdminDashboard = () => {
   }, []);
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
@@ -114,14 +112,12 @@ const AdminDashboard = () => {
         />
       )}
 
-      {/* Sidebar */}
       <aside className={`
         fixed lg:static inset-y-0 left-0 z-50
         w-64 bg-white shadow-xl flex flex-col
         transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0 transition-transform duration-300 ease-in-out
       `}>
-        {/* Header */}
         <div className="p-6 border-b border-gray-200 ">
           <div className="flex items-center justify-between">
             <div>
@@ -136,8 +132,6 @@ const AdminDashboard = () => {
             </button>
           </div>
         </div>
-
-        {/* Navigation */}
         <nav className="flex-1 p-4 ">
           <ul className="space-y-2">
             {navItems.map((item) => (
@@ -183,14 +177,9 @@ const AdminDashboard = () => {
           </button>
         </div>
         </nav>
-
-        {/* Admin info and logout */}
         
       </aside>
-
-      {/* Main content */}
       <main className="flex-1 lg:ml-0">
-        {/* Mobile header */}
         <div className="lg:hidden bg-white shadow-sm border-b border-gray-200 p-4 flex items-center justify-between">
           <button
             onClick={() => setSidebarOpen(true)}
@@ -199,12 +188,9 @@ const AdminDashboard = () => {
             <Menu className="h-6 w-6" />
           </button>
           <h1 className="text-xl font-semibold text-gray-800">Smart Canteen</h1>
-          <div className="w-10" /> {/* Spacer */}
+          <div className="w-10" />
         </div>
-
-        {/* Content area */}
         <div className="p-6 lg:p-10">
-          {/* Show dashboard content only on main dashboard route */}
           {isCurrentPath('/admin/dashboard') ? (
             <div className="max-w-7xl mx-auto">
               <div className="mb-8">
@@ -215,8 +201,6 @@ const AdminDashboard = () => {
                   Welcome to the Smart Canteen Admin Panel. Manage your canteen operations efficiently.
                 </p>
               </div>
-
-              {/* Dashboard cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <DashboardCard
                   title="Add New Product"
@@ -251,8 +235,6 @@ const AdminDashboard = () => {
                   onClick={() => navigate('/admin/dashboard/create-user')}
                 />
               </div>
-
-              {/* Quick stats section */}
               <div className="mt-12">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Overview</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -278,7 +260,6 @@ const AdminDashboard = () => {
               </div>
             </div>
           ) : (
-            // This will be rendered when accessing sub-routes like add-product, etc.
             <div className="max-w-7xl mx-auto">
               <div className="text-center py-12">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">

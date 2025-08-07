@@ -65,7 +65,6 @@ export async function updateProductStock(id:any, newStock:any, reason:any) {
     throw new Error('Product not found');
   }
 
-  // Update product stock and create stock log
   return await db.$transaction(async (prisma) => {
     const updatedProduct = await prisma.product.update({
       where: {

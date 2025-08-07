@@ -1,4 +1,4 @@
-import { db } from '../../shared/lib/db'; // assumes Prisma db client is exported here
+import { db } from '../../shared/lib/db';
 
 interface PurchaseItem {
   productId: string;

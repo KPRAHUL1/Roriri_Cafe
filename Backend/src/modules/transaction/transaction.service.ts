@@ -1,5 +1,5 @@
 import { db } from "../../shared/lib/db";
-import { Prisma } from '@prisma/client'; // ✅ Import Prisma types
+import { Prisma } from '@prisma/client';
 
 export async function createTransaction(userId: string, items: any[], totalAmount: number) {
   if (!userId || !items || totalAmount <= 0) {
@@ -7,7 +7,7 @@ export async function createTransaction(userId: string, items: any[], totalAmoun
   }
 
   const result = await db.$transaction(async (tx: any) => {
-    const user = await tx.user.findUnique({ where: { userId } }); // userId = "GOHUL1233"
+    const user = await tx.user.findUnique({ where: { userId } });
 
     if (!user || user.balance < totalAmount) {
       throw new Error('Insufficient balance or user not found');
@@ -16,7 +16,7 @@ export async function createTransaction(userId: string, items: any[], totalAmoun
     const newBalance = user.balance - totalAmount;
 
     await tx.user.update({
-      where: { id: user.id }, // ✅ use UUID for update
+      where: { id: user.id },
       data: { balance: newBalance },
     });
 
@@ -29,7 +29,7 @@ export async function createTransaction(userId: string, items: any[], totalAmoun
         balanceAfter: newBalance,
         description: `Purchase of ${items.length} items`,
         reference: `ORDER_${Date.now()}`,
-        items: items as Prisma.JsonValue, // ✅ Cast items as JSON
+        items: items as Prisma.JsonValue,
       },
     });
 

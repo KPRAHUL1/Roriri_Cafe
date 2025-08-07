@@ -13,7 +13,6 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Check if already logged in
   useEffect(() => {
     const token = localStorage.getItem("adminToken");
     if (token) {
@@ -62,18 +61,14 @@ const AdminLogin = () => {
       }
 
       if (isLogin) {
-        // Store authentication data
         localStorage.setItem("adminToken", data.token);
         if (data.admin) {
           localStorage.setItem("adminData", JSON.stringify(data.admin));
         }
-        
-        // Navigate to dashboard
         navigate('/admin/dashboard', { replace: true });
       } else {
         alert('Registered successfully! Now login.');
         setIsLogin(true);
-        // Clear form data
         setFormData({
           email: '',
           password: '',
@@ -98,7 +93,6 @@ const AdminLogin = () => {
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4 py-8">
       <div className="flex flex-col lg:flex-row w-full max-w-6xl rounded-3xl shadow-2xl overflow-hidden bg-gray-800">
-        {/* Left image */}
         <div
           className="hidden lg:flex lg:w-1/2 relative bg-cover bg-center"
           style={{
@@ -116,8 +110,6 @@ const AdminLogin = () => {
             </p>
           </div>
         </div>
-
-        {/* Right form */}
         <div className="w-full lg:w-1/2 px-6 md:px-12 py-10 text-white flex items-center">
           <AnimatePresence mode="wait">
             <motion.form

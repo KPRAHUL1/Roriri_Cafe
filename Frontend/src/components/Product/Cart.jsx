@@ -1,7 +1,5 @@
 import { ShoppingCart } from "lucide-react";
 import CartItem from "./CartItem";
-
-// Custom animation class (add to your global CSS if not using Tailwind's plugin)
 const fadeInScale = `
   @keyframes fadeInScale {
     0% { opacity: 0; transform: scale(0.95);}
@@ -11,8 +9,6 @@ const fadeInScale = `
     animation: fadeInScale 0.5s cubic-bezier(0.4,0,0.2,1) forwards;
   }
 `;
-
-// Inject custom animation styles (for demo, ideally add to your CSS file)
 if (typeof document !== "undefined" && !document.getElementById("fadeInScaleStyle")) {
   const style = document.createElement("style");
   style.id = "fadeInScaleStyle";
