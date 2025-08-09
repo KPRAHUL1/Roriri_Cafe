@@ -51,7 +51,7 @@ const ProductManager = () => {
   const [validationErrors, setValidationErrors] = useState({});
 
   // API Base URL - adjust this to match your backend URL
-  const API_BASE_URL = 'http://localhost:7700/api';
+  const API_BASE_URL = 'http://192.168.2.11:7700/api';
 
   const categories = ['Breakfast', 'Lunch', 'Dinner', 'Tea', 'Coffee', 'Cooldrinks', 'Snacks'];
   
@@ -596,7 +596,7 @@ const ProductManager = () => {
                       <div className="p-6">
                         <div className="flex items-start justify-between mb-2">
                           <h3 className="text-lg font-semibold text-gray-800 truncate">{product.name}</h3>
-                          <span className="text-lg font-bold text-orange-600">${product.price}</span>
+                          <span className="text-lg font-bold text-orange-600">₹{product.price}</span>
                         </div>
                         
                         <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>

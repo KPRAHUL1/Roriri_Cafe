@@ -52,7 +52,7 @@ await sendTokenEmail(purchase.user.email, tokenNumber, items, unitPrice);
   return token;
 }
 
-async function sendTokenEmail(to: string, tokenNumber: string, items: any[], total: number) {
+async function sendTokenEmail(to: string, tokenNumber: string, items: any[], grandTotal: number) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -62,14 +62,15 @@ async function sendTokenEmail(to: string, tokenNumber: string, items: any[], tot
   });
 
 const itemList = items
-  .map(item => {
-    const name = item.name || "Unnamed";
-    const qty = item.quantity || 0;
-    const unit = item.price || 0;
-    const total = qty * item.price;
-    return `• ${name} x ${qty} @ ₹${unit} = ₹${total}`;
-  })
-  .join("<br>");
+    .map((item) => {
+      const name = item.name || "Unnamed";
+      const qty = item.quantity || 0;
+      const unit = item.price || 0;
+      const itemTotal = qty * unit;
+
+      return `• ${name} x ${qty} @ ₹${unit} = ₹${itemTotal}`;
+    })
+    .join("<br>");
 
 console.log("EMAIL ITEMS:", items);
 
@@ -79,8 +80,8 @@ console.log("EMAIL ITEMS:", items);
     subject: `🧾 Roriri Cafe Token: ${tokenNumber}`,
     html: `
       <h2>✅ Order Confirmation</h2>
-      <p><strong>Token Number:</strong> ${tokenNumber}</p>
-      <p><strong>Total:</strong> ₹${total}</p>
+       <p><strong>Token Number:</strong> ${tokenNumber}</p>
+      <p><strong>Total:</strong> ₹${grandTotal}</p>
       <p><strong>Items:</strong><br>${itemList}</p>
       <br />
       <p>Thank you for ordering from Roriri Cafe!</p>

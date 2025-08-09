@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Camera, User, CreditCard, ShoppingCart, AlertCircle, X, Loader, RefreshCw, Plus, Settings } from 'lucide-react';
 import { BrowserQRCodeReader } from '@zxing/browser';
 import { BrowserMultiFormatReader } from '@zxing/library';
@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import QRScanner from '../components/Scan/QRScanner';
 import PinEntry from './PinEnterPage';
 import PinSetup from './Pinsetup';
+import roriri from '../assets/loader.png'
 const API_BASE_URL = 'http://localhost:7700/api';
 
 const DynamicCanteenATM = () => {
@@ -25,8 +26,8 @@ const handleQRScan = async (qrCode) => {
     try {
       qrData = JSON.parse(qrCode);
       console.log('✅ Parsed QR data as JSON:', qrData);
-    } catch (parseError) {
-      console.warn('ℹ️ QR code is not JSON, using as userId:', qrCode);
+    } catch (e) {
+      console.warn('ℹ️ QR code is not JSON, using as userId:',e, qrCode);
       qrData = { userId: qrCode };
     }
 
@@ -135,13 +136,18 @@ const handleQRScan = async (qrCode) => {
       setCurrentView('user');
     }
   }, []);
+console.log(userData);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-600 p-4">
-      <div className="container mx-auto max-w-md">
+      <div className="container mx-auto max-w-md flex flex-col justify-center items-center">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-white mb-2">🍽️ Roriri Cafe</h1>
+         <h1 className="flex items-center space-x-3 text-center text-4xl font-bold text-white mb-4">
+  <img src={roriri} alt="Roriri Logo" className="w-10 h-10 object-contain" />
+  <span>Roriri Cafe</span>
+</h1>
+
           <p className="text-indigo-100">Dynamic QR Scanner • PIN Authentication</p>
         </div>
 

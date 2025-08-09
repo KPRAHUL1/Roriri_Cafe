@@ -217,24 +217,28 @@ const AdminOrderHistory = () => {
                   transition={{ delay: index * 0.1 + 0.3 }}
                 >
                   {order.purchases.map((purchase, idx) => (
-                    <motion.div
-                      key={purchase.id}
-                      className="flex justify-between items-center p-3 bg-amber-50 rounded-xl border border-amber-100"
-                      whileHover={{ scale: 1.02, backgroundColor: '#FEF3C7' }}
-                    >
-                      <div className="flex items-center">
-                        <span className="text-lg mr-3">☕</span>
-                        <span className="font-medium text-gray-800 text-lg">
-                          {purchase.product.name}
-                        </span>
-                      </div>
-                      <motion.span 
-                        className="bg-amber-200 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold"
-                        whileHover={{ scale: 1.1 }}
-                      >
-                        Qty: {purchase.quantity}
-                      </motion.span>
-                    </motion.div>
+                  <motion.div
+  key={purchase.id || idx}
+  className="flex flex-col gap-1 p-3 bg-amber-50 rounded-xl border border-amber-100"
+  whileHover={{ scale: 1.02, backgroundColor: '#FEF3C7' }}
+>
+  <div className="flex justify-between items-center">
+    <div className="flex items-center">
+      <span className="text-lg mr-3">  🍽 </span>
+      <span className="font-medium text-gray-800 text-lg">
+        {purchase.product.name}
+      </span>
+    </div>
+    <span className="text-sm text-gray-600">
+      ₹{purchase.unitPrice} x {purchase.quantity}
+    </span>
+  </div>
+  <div className="flex justify-between text-sm text-gray-700 font-semibold mt-1">
+    <span>Total:</span>
+    <span>₹{purchase.unitPrice * purchase.quantity}</span>
+  </div>
+</motion.div>
+
                   ))}
                 </motion.div>
 
@@ -247,7 +251,7 @@ const AdminOrderHistory = () => {
                 >
                   <div className="flex items-center text-green-600 font-bold text-lg">
                     <span className="mr-2">💰</span>
-                    ₹{order.totalAmount?.toFixed(2)}
+                    ₹{order.amount?.toFixed(2)}
                   </div>
                   <div className="text-xs text-gray-500 flex items-center">
                     <span className="mr-1">🕒</span>
