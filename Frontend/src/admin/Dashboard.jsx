@@ -20,7 +20,9 @@ const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
+  const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 50, pages: 0 });
   const [orders, setOrders] = useState([]);
+const [todaySales, setTodaySales] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -80,29 +82,54 @@ const AdminDashboard = () => {
     };
     fetchProducts();
   }, []);
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const UsersData = await fetch(`${API_BASE_URL}/users`);
-      if (!UsersData.ok) {
-        throw new Error('Failed to fetch users');
-      }
-      const users = await UsersData.json();
-      setUsers(users);  
-    };
-    fetchUsers();
-  }, []);
+useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch(`http://localhost:7700/api/users?page=1&limit=50`);
+      const data = await res.json();
+      setUsers(data.users); // the array
+      setPagination(data.pagination); // total, pages, etc.
+    } catch (err) {
+      console.error('Failed to fetch users', err);
+    }
+  };
 
-  useEffect(() => {
-    const fetchOrders = async () => { 
-      const ordersData = await fetch(`${API_BASE_URL}/order-history`);
-      if (!ordersData.ok) {
+  fetchUsers();
+}, []);
+
+
+useEffect(() => {
+  const fetchOrders = async () => { 
+    try {
+      const res = await fetch(`${API_BASE_URL}/order-history`);
+      if (!res.ok) {
         throw new Error('Failed to fetch orders');
       }
-      const orders = await ordersData.json();
-      setOrders(orders);
-    };
-    fetchOrders();  
-  }, []);
+
+      const data = await res.json(); // { success: true, orders: [...] }
+      const orderList = data.orders || [];
+      setOrders(orderList);
+
+      // 🧠 Filter orders created *today*
+      const today = new Date().toISOString().split('T')[0]; // '2025-08-08'
+      const todaysOrders = orderList.filter((order) => {
+        const createdDate = new Date(order.createdAt).toISOString().split('T')[0];
+        return createdDate === today;
+      });
+
+      // 💰 Sum the amounts
+      const total = todaysOrders.reduce((sum, order) => sum + (order.amount || 0), 0);
+
+      setTodaySales(total);
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
+
+  fetchOrders();  
+}, []);
+
+  
   return (
     <div className="flex min-h-screen bg-gray-50">
       {sidebarOpen && (
@@ -248,13 +275,13 @@ const AdminDashboard = () => {
                     <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
                       Active Users
                     </h3>
-                  <p className="text-3xl font-bold text-gray-900 mt-2"></p>
+                  <p className="text-3xl font-bold text-gray-900 mt-2">{pagination.total}</p>
                   </div>
                   <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                     <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
                       Today's Sales
                     </h3>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">₹</p>
+                    <p className="text-3xl font-bold text-gray-900 mt-2">₹{todaySales.toLocaleString('en-IN')}</p>
                   </div>
                 </div>
               </div>

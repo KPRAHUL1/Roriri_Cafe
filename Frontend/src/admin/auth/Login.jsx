@@ -31,8 +31,8 @@ const AdminLogin = () => {
     setLoading(true);
 
     const url = isLogin
-      ? 'http://localhost:7700/api/admin-auth/login'
-      : 'http://localhost:7700/api/admin-auth/register';
+      ? 'http://192.168.2.11:7700/api/admin-auth/login'
+      : 'http://192.168.2.11:7700/api/admin-auth/register';
 
     const payload = isLogin
       ? {
