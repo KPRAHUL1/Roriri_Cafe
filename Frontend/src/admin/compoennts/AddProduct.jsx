@@ -51,7 +51,7 @@ const ProductManager = () => {
   const [validationErrors, setValidationErrors] = useState({});
 
   // API Base URL - adjust this to match your backend URL
-  const API_BASE_URL = 'http://192.168.2.11:7700/api';
+  const API_BASE_URL = 'http://localhost:7700/api';
 
   const categories = ['Breakfast', 'Lunch', 'Dinner', 'Tea', 'Coffee', 'Cooldrinks', 'Snacks'];
   
